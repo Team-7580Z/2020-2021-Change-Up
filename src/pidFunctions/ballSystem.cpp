@@ -50,7 +50,7 @@ bool OnlyIntake = false;
 void opcontrol() {
    
 
-    if (master.get_digital(DIGITAL_R1)) {
+    if (master.get_digital(DIGITAL_L1)) {
         if (ballSystemOn == true) {
             TurnOffBallSystem();
             ballSystemOn = false;
@@ -61,17 +61,17 @@ void opcontrol() {
         }
 
     }
-    else if (master.get_digital(DIGITAL_L1) && OnlyIntake == false  ) {
-        TurnOnIntake(100);
-        TurnOnRollerSystem(0, 0);
-        bool OnlyIntake = true;
-        ballSystemOn = false;
-    }
-    else if (master.get_digital(DIGITAL_L1) && OnlyIntake == true) {
-        ballSystemOn = true;
-        TurnBallSystemOn(100, 100);
-        RollerOn = true;
-        IntakeOn = true;
+    else if (master.get_digital(DIGITAL_L2)) {
+        if (OnlyIntake == false ){
+            TurnBallSystemOn(0,100);
+            OnlyIntake = true;
+            ballSystemOn = false;
+        }
+        else if (OnlyIntake = true) {
+            TurnBallSystemOn(100, 100);
+            OnlyIntake = false;
+            ballSystemOn = true;
+        }
     }
 }
 }
