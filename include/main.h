@@ -50,15 +50,20 @@
  * concurrently! The okapi namespace will export all symbols inside the pros
  * namespace.
  */
+using namespace pros;
+using namespace pros::literals;
+
 // using namespace pros;
 // using namespace pros::literals;
 // using namespace okapi;
-
+extern Controller master;
 /**
  * Prototypes for the competition control tasks are redefined here to ensure
  * that they can be called from user code (i.e. calling autonomous from a
  * button press in opcontrol() for testing purposes).
  */
+#include "pidFunctions/ballSystem.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
