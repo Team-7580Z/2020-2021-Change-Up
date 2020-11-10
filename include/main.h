@@ -63,6 +63,8 @@ extern Controller master;
  * button press in opcontrol() for testing purposes).
  */
 #include "pidFunctions/ballSystem.h"
+#include "pidFunctions/drive.h"
+#include "pidFunctions/braingif.h"
 
 #ifdef __cplusplus
 extern "C" {

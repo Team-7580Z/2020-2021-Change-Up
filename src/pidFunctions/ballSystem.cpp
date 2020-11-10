@@ -16,6 +16,47 @@ Motor SharedRollers(SharedRollersPort, false);
 Motor SingleRoller(SinglePort, true);
 Optical optical_sensor(OpticalSensorPort);
 
+float SharedKP;
+float SharedKI;
+float SharedKD;
+float SharedP;
+float SharedI;
+float SharedD;
+float SharedTarget;
+float SharedError;
+float SharedDerritive;
+float SharedPrevError;
+float Sharedcurrentvoltage;
+float SharedIntergal;
+float SharedIntergalBond;
+float SharedTotalError;
+float RollersPower;
+
+void SharedRollerPID(int speed) {
+    SharedTarget = speed*120;
+    Sharedcurrentvoltage = SharedRollers.get_voltage();
+    SharedError = SharedTarget - Sharedcurrentvoltage;
+    SharedDerritive = SharedError - SharedPrevError;
+
+    if (std::abs(SharedError) < SharedIntergalBond) {
+        SharedIntergal = SharedIntergal + SharedError;
+    } 
+    else {
+        SharedIntergal = 0;
+    }
+
+    SharedPrevError = SharedError;
+
+    SharedP = SharedError*SharedKD;
+    SharedI = SharedIntergal*SharedKI;
+    SharedD = SharedDerritive*SharedKD;
+
+    RollersPower = SharedP + SharedI + SharedD;
+    
+    SharedRollers.move_voltage(RollersPower);
+
+}
+
 void TurnOnIntake(int speed) {
     LeftIntake.move_voltage(speed*120);
     RightIntake.move_voltage(speed*120);
@@ -36,20 +77,10 @@ void TurnOffBallSystem(){
 }
 bool IntakeOn = false;
 bool RollerOn = false;
-void descore(char color) {
-    if (color = 'b') {
-        printf("h");
-    }
-    else if (color = 'r') {
-        printf("h");
-    }
-}
 
 bool ballSystemOn = false;
 bool OnlyIntake = false;
 void opcontrol() {
-   
-
     if (master.get_digital(DIGITAL_L1)) {
         if (ballSystemOn == true) {
             TurnOffBallSystem();
