@@ -1,0 +1,13 @@
+1. Get current Postion
+    a.To get this we need to find out how much the robot rotated
+    b. we need to know how much the bot moved up and down
+    c. We need to use imu to find the drift value
+
+    Combinding these we can find where we are
+2. Put in desired Postion
+3. Find most effective pathway to get to that location
+    Using the current location bot should shortet route to new location
+    This will require odemtry and motion planning
+
+4. Need to be accurate
+    Should be feild centric so if it made a mistake earier it can fix it

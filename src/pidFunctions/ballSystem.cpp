@@ -2,107 +2,97 @@
 #include "main.h"
 
 //Varables with the ports for the ball System
-int leftIntakePort=5;
-int RightIntakePort=6;
-int SharedRollersPort=8;
-int SinglePort=3;
-int OpticalSensorPort=4;
+int leftIntakePort=5; // Left Intake Port
+int RightIntakePort=6; //Right Intake Port
+int SharedRollersPort=8; //Shared Roller Port
+int SinglePort=3; //Single Roller Port
+int OpticalSensorPort=4; //Optical Sensor Port
 
-namespace BallSystem {
+namespace BallSystem { //Namespace so these functions can be used outside of this file 
 
-Motor LeftIntake(leftIntakePort, true);
-Motor RightIntake(RightIntakePort, false);
+//Seting up the motors
+Motor LeftIntake(leftIntakePort, true); //The Left Intake Motor is reversed
+Motor RightIntake(RightIntakePort, false); 
 Motor SharedRollers(SharedRollersPort, false);
-Motor SingleRoller(SinglePort, true);
+Motor SingleRoller(SinglePort, true); //The Single Roller is also reversed
 Optical optical_sensor(OpticalSensorPort);
 
-float SharedKP;
-float SharedKI;
-float SharedKD;
-float SharedP;
-float SharedI;
-float SharedD;
+float SharedKP=.9; //The P value of PID
+float SharedKI; //The I value of PID
+float SharedKD; //The D value of PID
+
+float SharedP; //Intializing the P that will be added to get the power
+float SharedI; //Intializing the I that will be added to get the power
+float SharedD; //Intializing the D that will be added to get the power
+
+//Intialize the rest of the PID values
 float SharedTarget;
 float SharedError;
 float SharedDerritive;
 float SharedPrevError;
 float Sharedcurrentvoltage;
 float SharedIntergal;
-float SharedIntergalBond;
+float SharedRoomOfError = 1;
+float SharedPIDLimit = 8;
 float SharedTotalError;
 float RollersPower;
 
 void SharedRollerPID(int speed) {
-    SharedTarget = speed*120;
-    Sharedcurrentvoltage = SharedRollers.get_voltage();
-    SharedError = SharedTarget - Sharedcurrentvoltage;
-    SharedDerritive = SharedError - SharedPrevError;
+    SharedTarget = speed*120; //Getting the Target power
+    Sharedcurrentvoltage = SharedRollers.get_voltage(); //Getting the current voltage
+    SharedError = SharedTarget - Sharedcurrentvoltage; //We find the error by subtracting the target with the current voltage
+    SharedDerritive = SharedError - SharedPrevError; //Find the Derritive by subtracting the error with the error less than a second ago
 
-    if (std::abs(SharedError) < SharedIntergalBond) {
-        SharedIntergal = SharedIntergal + SharedError;
+    //Use a if statment so Intergal is only set in a controlable range 
+    if (std::abs(SharedError) < SharedRoomOfError) {
+        SharedIntergal = 0;
     } 
+    else if (std::abs(SharedError) >= SharedRoomOfError && std::abs(SharedError) < SharedPIDLimit) {
+        SharedIntergal = SharedIntergal + SharedError;
+       
+    }
     else {
         SharedIntergal = 0;
     }
 
-    SharedPrevError = SharedError;
-
-    SharedP = SharedError*SharedKD;
+     SharedPrevError = SharedError;
+        
+    SharedP = SharedError*SharedKP;
     SharedI = SharedIntergal*SharedKI;
     SharedD = SharedDerritive*SharedKD;
 
-    RollersPower = SharedP + SharedI + SharedD;
-    
-    SharedRollers.move_voltage(RollersPower);
+    SharedPrevError = SharedError;//Set Prev Error for next run to the current error
+
+    SharedP = SharedError*SharedKP; //Find the p
+    SharedI = SharedIntergal*SharedKI; //Find the I
+    SharedD = SharedDerritive*SharedKD; //Find the D
+
+    RollersPower = SharedP + SharedI + SharedD; //Get the VOltage we are going to set the motor at
+
+    SharedRollers.move_voltage(RollersPower+Sharedcurrentvoltage);
 
 }
 
-void TurnOnIntake(int speed) {
-    LeftIntake.move_voltage(speed*120);
-    RightIntake.move_voltage(speed*120);
+//PID for intakes
+
+void intakePID() {
+
 }
 
-void TurnOnRollerSystem(int sharedSpeed, int singleSpeed) {
-    SharedRollers.move_voltage(sharedSpeed*120);
-    SingleRoller.move_voltage(sharedSpeed*120);
-}
+void StartRoller(int speed) {
+    SharedRollerPID(speed);
+} 
+//The controlls for driver control
+bool BallSystemOn = false;
 
-void TurnBallSystemOn(int rollerSpeed, int speed) {
-    TurnOnIntake(speed);
-    TurnOnRollerSystem(rollerSpeed, rollerSpeed);
-}
-void TurnOffBallSystem(){
-    TurnOnIntake(0);
-    TurnOnRollerSystem(0, 0);
-}
-bool IntakeOn = false;
-bool RollerOn = false;
-
-bool ballSystemOn = false;
-bool OnlyIntake = false;
 void opcontrol() {
-    if (master.get_digital(DIGITAL_L1)) {
-        if (ballSystemOn == true) {
-            TurnOffBallSystem();
-            ballSystemOn = false;
+    if (master.get_digital(DIGITAL_R1) && BallSystemOn==false){
+          StartRoller(100);
+            BallSystemOn = true;
         }
-        else if (ballSystemOn == false) {
-            TurnBallSystemOn(100, 100);
-            ballSystemOn = true;
-        }
-
-    }
-    else if (master.get_digital(DIGITAL_L2)) {
-        if (OnlyIntake == false ){
-            TurnBallSystemOn(0,100);
-            OnlyIntake = true;
-            ballSystemOn = false;
-        }
-        else if (OnlyIntake = true) {
-            TurnBallSystemOn(100, 100);
-            OnlyIntake = false;
-            ballSystemOn = true;
+    else if (master.get_digital(DIGITAL_R1) && BallSystemOn==true) {
+        StartRoller(0);
+        BallSystemOn = false;
         }
     }
-}
 }
