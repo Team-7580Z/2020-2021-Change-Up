@@ -5,28 +5,31 @@
 #include <ctime>
 using namespace std;
 
-int frontRightPort = 9;
-int frontLeftPort = 1;
-int backRightPort = 10;
-int backLeftPort = 2;
+int frontRightPort = 9; //Variable with the front right motor port
+int frontLeftPort = 1; //Variable with the front left motor port
+int backRightPort = 10; //Variable with the back right motor port
+int backLeftPort = 2; //Variable with the back left motor port
 
-Motor FrontRight(frontRightPort, true);
-Motor FrontLeft(frontLeftPort);
-Motor BackRight(backRightPort, true);
-Motor BackLeft(backLeftPort);
+Motor FrontRight(frontRightPort, E_MOTOR_ENCODER_DEGREES); //Setting Up the Front Right Motor
+Motor FrontLeft(frontLeftPort, E_MOTOR_ENCODER_DEGREES);  //Setting Up the Front Left Motor
+Motor BackRight(backRightPort, E_MOTOR_ENCODER_DEGREES);  //Setting Up the Back Right Motor
+Motor BackLeft(backLeftPort, E_MOTOR_ENCODER_DEGREES); //Setting Up the Back Left Motor
 
-float Straightkp;
-float Straightki;
-float Straightkd;
-void DrivePID(float distance) {
 
-}
 
-int prevRightPostion;
-int prevLeftPostion;
 
-int changeRightEncoder;
-int changeLeftEncoder;
+
+namespace Drive{
+  float TotalX;
+  void DrivePD(float x) {
+    TotalX = 
+  }
+
+float prevRightPostion;
+float  prevLeftPostion;
+
+float  changeRightEncoder;
+float changeLeftEncoder;
 float totalRightChange;
 float totalLeftChage;
 
@@ -43,7 +46,9 @@ float GyroRate;
 float changeInAngle;
 
 float d1;
-namespace Drive{
+float localOffset;
+
+float averageOriantion;
   void Odemtry() {
     pros::Imu imu_sensor(7);
     imu_sensor.reset();
@@ -73,13 +78,20 @@ namespace Drive{
     pros::c::imu_gyro_s_t gyro = imu_sensor.get_gyro_rate();
     
     if (changeInAngle = 0){
-      globalOffset = gyro.z/changeRightEncoder;
-      
+      localOffset = gyro.z/changeRightEncoder;
     
      }
      else {
-       globalOffset = 2*sin(gyro.z);
+       float localOffsetArray [2][1];
+       
+
      }
+
+    averageOriantion = previousAbsoluteOrientation + changeInAngle/2;
+
+
+
+
   }
   void opcontrol() {
     Odemtry();
@@ -95,9 +107,9 @@ namespace Drive{
     int rb = power - turn + strafe;
 
 
-     FrontRight.move(rf);
+     FrontRight.move(-rf);
      FrontLeft.move(lf);
-     BackRight.move(rb);
+     BackRight.move(-rb);
      BackLeft.move(lb);
   }
 }
