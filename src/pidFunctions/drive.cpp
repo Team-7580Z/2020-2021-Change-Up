@@ -21,8 +21,53 @@ Motor BackLeft(backLeftPort, E_MOTOR_ENCODER_DEGREES); //Setting Up the Back Lef
 
 namespace Drive{
   float TotalX;
+
+  bool XTargetReached = false;
+
+  float averageLeftPostion;
+  float averageRightPostion;
+
+  float aveargeRightLeft;
+  float DriveStraightDistance;
+
+  float distanceTravledInDegree = 12.56637/360;
+
+  float StraightError;
+  float StraightPrevError;
+
+  float StraightDerritive;
+
+  float StraightP;
+  float StraightD;
+
+  float StraightkP;
+  float StraightkD;
+
+  float StraightVelocity;
+
   void DrivePD(float x) {
-    TotalX = 
+
+    while (XTargetReached == false) {
+      averageLeftPostion = (FrontLeft.get_raw_position(&now)+BackLeftt.get_raw_position(&now))/2;
+      averageRightPostion = (FrontRight.get_raw_position(&now)+BackRight.get_raw_position(&now))/2;
+      aveargeRightLeft = (averageRightPostion+averageLeftPostion)/2;
+
+      DriveStraightDistance = aveargeRightLeft*distanceTravledInDegree;
+
+      StraightError = x-DriveStraightDistance;
+
+      StraightDerritive = StraightError - StraightPrevError;
+
+      StraightPrevError = StraightError;
+
+      StraightP = StraightError*StraightkP;
+      StraightD = StraightDerritive*StraightkD;
+
+      StraightVelocity StraightP+StraightD
+    }
+    if (StraightError<1 && StraightError>-1) {
+      XTargetReached = true;
+    }
   }
 
 float prevRightPostion;
@@ -84,7 +129,6 @@ float averageOriantion;
      else {
        float localOffsetArray [2][1];
        
-
      }
 
     averageOriantion = previousAbsoluteOrientation + changeInAngle/2;
