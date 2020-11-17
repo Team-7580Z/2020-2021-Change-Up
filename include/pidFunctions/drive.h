@@ -2,7 +2,8 @@
 #define _DRIVE_H_
 
 namespace Drive{
-    void DrivePID(float Straightdistance, float StrafeDistance);
+     void DrivePD(float x);
+
     void Odemtry();
     void opcontrol();
 }

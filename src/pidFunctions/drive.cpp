@@ -15,128 +15,100 @@ Motor FrontLeft(frontLeftPort, E_MOTOR_ENCODER_DEGREES);  //Setting Up the Front
 Motor BackRight(backRightPort, E_MOTOR_ENCODER_DEGREES);  //Setting Up the Back Right Motor
 Motor BackLeft(backLeftPort, E_MOTOR_ENCODER_DEGREES); //Setting Up the Back Left Motor
 
-
+ADIEncoder Ltraking ('G', 'H', false);
+ADIEncoder Rtraking ('A', 'B', true);
+ADIEncoder Stracking('C', 'D', false);
 
 
 
 namespace Drive{
-  float TotalX;
+int LeftPos;
+int BackPos;
+int RightPos;
+float SmallDistance= 1.375/360;
+float BigDistance= 10/360;
 
-  bool XTargetReached = false;
+int PrevLeft;
+int PrevBack;
+int PrevRight;
 
-  float averageLeftPostion;
-  float averageRightPostion;
+float deltaLeft;
+float deltaRight;
+float deltaBack;
 
-  float aveargeRightLeft;
-  float DriveStraightDistance;
+float totalDeltaDistR;
+float totalDeltaDistL;
 
-  float distanceTravledInDegree = 12.56637/360;
+float currentAbsoluteOrriantion;
+float StratTheta=0;
 
-  float StraightError;
-  float StraightPrevError;
+float LeftTrakingRadius=5.5;
+float RightTrakinRadius=5.5;
 
-  float StraightDerritive;
+float prevTheta;
+float ThetaDelta;
 
-  float StraightP;
-  float StraightD;
+float sTrakingRadius = 5.5;
 
-  float StraightkP;
-  float StraightkD;
+float deltaXLocal;
+float deltaYLocal;
 
-  float StraightVelocity;
+float deltaXGlobal;
+float deltaYGlobal;
 
-  void DrivePD(float x) {
+float XPostionGlobal;
+float YPostionGlobal;
 
-    while (XTargetReached == false) {
-      averageLeftPostion = (FrontLeft.get_raw_position(&now)+BackLeftt.get_raw_position(&now))/2;
-      averageRightPostion = (FrontRight.get_raw_position(&now)+BackRight.get_raw_position(&now))/2;
-      aveargeRightLeft = (averageRightPostion+averageLeftPostion)/2;
+float averageThetaArk;
 
-      DriveStraightDistance = aveargeRightLeft*distanceTravledInDegree;
+ void Odemtry() {
+   LeftPos = Ltraking.get_value();
+   RightPos = Rtraking.get_value();
+   BackPos = Stracking.get_value();
 
-      StraightError = x-DriveStraightDistance;
+   deltaLeft = (LeftPos-PrevLeft)*SmallDistance;
+   deltaRight = (RightPos-PrevRight)*SmallDistance;
+   deltaBack = (BackPos-PrevBack)*BigDistance;
 
-      StraightDerritive = StraightError - StraightPrevError;
+   PrevBack=BackPos;
+   PrevLeft=LeftPos;
+   PrevRight=RightPos;
 
-      StraightPrevError = StraightError;
+  totalDeltaDistL += deltaLeft;
+  totalDeltaDistR += deltaRight;
 
-      StraightP = StraightError*StraightkP;
-      StraightD = StraightDerritive*StraightkD;
+  currentAbsoluteOrriantion = StratTheta - ( (totalDeltaDistL-totalDeltaDistR)/(LeftTrakingRadius+RightTrakinRadius));  //Radians
 
-      StraightVelocity StraightP+StraightD
-    }
-    if (StraightError<1 && StraightError>-1) {
-      XTargetReached = true;
-    }
+  ThetaDelta = currentAbsoluteOrriantion - prevTheta;
+
+  prevTheta = currentAbsoluteOrriantion;
+
+  if (ThetaDelta == 0) {
+    deltaXLocal = deltaBack;
+    deltaYLocal = deltaRight;
   }
 
-float prevRightPostion;
-float  prevLeftPostion;
+  else {
+    deltaXLocal = sin(ThetaDelta/2)*((deltaBack/ThetaDelta)+sTrakingRadius);
+    deltaYLocal = sin(ThetaDelta/2)*((deltaLeft/ThetaDelta)+LeftTrakingRadius);
+  }
 
-float  changeRightEncoder;
-float changeLeftEncoder;
-float totalRightChange;
-float totalLeftChage;
+  averageThetaArk = currentAbsoluteOrriantion - (ThetaDelta/2);
 
-float newAbsoluteOrientation;
-float newAbsoluteOrientationNum;
-float newAbsoluteOrinetationDen;
+  deltaXGlobal = (deltaYLocal*cos(averageThetaArk))-(deltaXLocal*sin(averageThetaArk));
+   deltaYGlobal = (deltaYLocal * sin(averageThetaArk)) + (deltaXLocal * cos(averageThetaArk));
 
-float previousAbsoluteOrientation;
-float SL = 5;
-float SR = 5;
-
-float globalOffset;
-float GyroRate;
-float changeInAngle;
-
-float d1;
-float localOffset;
-
-float averageOriantion;
-  void Odemtry() {
-    pros::Imu imu_sensor(7);
-    imu_sensor.reset();
-    ADIEncoder RightEncoder ('A', 'B', true);
-    ADIEncoder LeftEncoder ('G', 'H', false);
+   XPostionGlobal += deltaXGlobal;
+   YPostionGlobal += deltaYGlobal;
+  
+  std::string X = std::to_string(XPostionGlobal);
+  std::string Y = std::to_string(YPostionGlobal);
     lcd::initialize();
-    int RightPostion = RightEncoder.get_value();
-    int LeftPostion = LeftEncoder.get_value();
-
-    changeRightEncoder = RightPostion - prevRightPostion;
-    changeLeftEncoder = LeftPostion - prevLeftPostion;
-
-    prevRightPostion = RightPostion;
-    prevLeftPostion = LeftPostion;
-
-    //.048 inches traveled evrey thick
-    totalRightChange = changeRightEncoder*.048;
-    totalLeftChage = changeLeftEncoder*.048;
-
-    newAbsoluteOrientationNum = totalLeftChage-totalRightChange;
-    newAbsoluteOrinetationDen = SL+SR;
-
-    newAbsoluteOrientation = newAbsoluteOrientationNum/newAbsoluteOrinetationDen;
-
-    changeInAngle = newAbsoluteOrientation-previousAbsoluteOrientation;  
-
-    pros::c::imu_gyro_s_t gyro = imu_sensor.get_gyro_rate();
-    
-    if (changeInAngle = 0){
-      localOffset = gyro.z/changeRightEncoder;
-    
-     }
-     else {
-       float localOffsetArray [2][1];
-       
-     }
-
-    averageOriantion = previousAbsoluteOrientation + changeInAngle/2;
+    pros::lcd::set_text(1, X);
+    pros::lcd::set_text(2, Y);
 
 
-
-
-  }
+ }
   void opcontrol() {
     Odemtry();
     int power = master.get_analog(ANALOG_LEFT_Y);
