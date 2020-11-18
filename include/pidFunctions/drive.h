@@ -2,9 +2,10 @@
 #define _DRIVE_H_
 
 namespace Drive{
-     void DrivePD(float x);
+    
 
     void Odemtry();
+    void StraightPID(float inches);
     void opcontrol();
 }
 

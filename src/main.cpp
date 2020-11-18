@@ -15,11 +15,12 @@ Motor SingleRoller(SinglePort, true); //The Single Roller is also reversed
 
 
 void opcontrol() {
-	bool BallOn=false;
 
-    while (true) {
-		pros::delay(20);
+	Drive::StraightPID(24);
+  //  while (true) {
+		//pros::delay(20);
 
-		Drive::opcontrol(); 
-	}    }
+		//Drive::opcontrol(); 
+//	}  
+}
 

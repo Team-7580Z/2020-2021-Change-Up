@@ -24,11 +24,13 @@ ADIEncoder Rtraking ('A', 'B', true);
 ADIEncoder Stracking('C', 'D', false);
 
 Imu imu(imuPort);
-
+//Intiilze Drive Vex equipment done
 
 
 //Create a namespace to allow code to be used in other spot
 namespace Drive{
+
+//SetUping Variable for IMU loop  
 float ImuError;
 float ImuDerritive;
 float ImuIntergal;
@@ -45,6 +47,8 @@ float currentDegree;
 
 float ImuPrevError;
 bool targretReached = false;
+
+//Function for Turn PID with IMU
 void IMUTurn(int targetDegree) {
   while(targretReached == false) {
     currentDegree = imu.get_rotation();
@@ -57,9 +61,9 @@ void IMUTurn(int targetDegree) {
 
   }
 }
+//IMU PID done
 
-
-
+//Setting up the variable for Odemtry
 int LeftPos;
 int BackPos;
 int RightPos;
@@ -98,9 +102,11 @@ float XPostionGlobal;
 float YPostionGlobal;
 
 float averageThetaArk;
+//Varaibles intilzation for Odemtry Done
 
+//Inilzing Varibalbes and Constants for PID
 
-//PID Values
+//Variables for PID set
 float XError;
 float XDerritive;
 float XPrevError;
@@ -108,14 +114,20 @@ float XPrevError;
 
 int target=0;
 
+//Constants for PID
 float XKP = 200;
 float XkD;
 
+//Back for Variables for PID
 float XP;
 float XD;
+
+//Will be used to exit the PID loop
 bool reached;
 float Power;
 float currentPostion;
+
+//Function for Odemtry
  void Odemtry() {
    LeftPos = Ltraking.get_value();
    RightPos = Rtraking.get_value();
@@ -185,13 +197,13 @@ float currentPostion;
     std::string power = std::to_string(Power);
     lcd::set_text(4, "Power: " + power);
   
-      FrontLeft.move(-Power);
-      FrontRight.move(Power);
-      BackLeft.move(-Power);
-      BackRight.move(Power);
+      FrontLeft.move(Power);
+      FrontRight.move(-Power);
+      BackLeft.move(Power);
+      BackRight.move(-Power);
       XPrevError = XError;
  }
-float StraightKP;
+float StraightKP=100;
 float StraightKI;
 float StraightKD;
 float StraightError;
@@ -200,7 +212,6 @@ float StraightDerritive;
 float leftTracking;
 float RightTracking;
 
-float currentPostion;
 float average;
 float distanceTravled;
 
@@ -210,15 +221,17 @@ float StraightD;
 
 float StraightPower;
 bool StraightPIDRun = true;
+
+//Function for Straight PID
 void StraightPID(float inches) {
-  while (StraightPIDRun){
+  while (StraightPIDRun == true){
   leftTracking = Ltraking.get_value();
   RightTracking = Rtraking.get_value();
   average = (leftTracking+RightTracking)/2;
 
-  distanceTravled = SmallDistance*average;
+  distanceTravled = (SmallDistance/2)*average;
   
-  StraightError = inches - distanceTravled;
+  StraightError = inches-distanceTravled;
 
   StraightDerritive = StraightPrevError-StraightError;
   StraightPrevError = StraightError;
@@ -227,27 +240,29 @@ void StraightPID(float inches) {
   StraightD = StraightDerritive*StraightKD;
 
   StraightPower = StraightP + StraightD;
+  if (StraightError > 1 || StraightError < -1 ){
+    FrontLeft.move_velocity(StraightPower);
+    FrontRight.move_velocity(-StraightPower);
+    BackLeft.move_velocity(StraightPower);
+    BackRight.move_velocity(-StraightPower);
+  }
 
-  FrontLeft.move_velocity(-StraightPower);
-  FrontRight.move_velocity(StraightPower);
-  BackLeft.move_velocity(-StraightPower);
-  BackRight.move_velocity(StraightPower);
-  if (StraightError < .21 || StraightError > -.21) {
-    StraightPIDRun = false;
+  else if (StraightError < 1 || StraightError > -1){
     FrontLeft.move_velocity(0);
     FrontRight.move_velocity(0);
     BackLeft.move_velocity(0);
     BackRight.move_velocity(0);
+    StraightPIDRun = false;
   }
   }
 }
 
 
   void opcontrol() {
-    Odemtry();
+    //Odemtry();
 
     int power = master.get_analog(ANALOG_LEFT_Y);
-	   // Turning is set to the x axis of the right joystick
+	    //Turning is set to the x axis of the right joystick
 	  int turn = master.get_analog(ANALOG_RIGHT_X);
 	   // Strafe is set to the x axis of the left joystick
    	int strafe = master.get_analog(ANALOG_LEFT_X);
@@ -258,9 +273,9 @@ void StraightPID(float inches) {
     int rb = power - turn + strafe;
 
 
-    FrontRight.move(-rf);
-    FrontLeft.move(lf);
-    BackRight.move(-rb);
-    BackLeft.move(lb);
+    //FrontRight.move(-rf);
+    //FrontLeft.move(lf);
+    //BackRight.move(-rb);
+    //BackLeft.move(lb);
   }
 }
