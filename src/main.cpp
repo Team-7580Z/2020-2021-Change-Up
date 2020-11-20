@@ -13,7 +13,6 @@ Motor RightIntake(RightIntakePort, false);
 Motor SharedRollers(SharedRollersPort, false);
 Motor SingleRoller(SinglePort, true); //The Single Roller is also reversed
 
-
 void opcontrol() {
 
 	Drive::StraightPID(24);
@@ -23,4 +22,3 @@ void opcontrol() {
 		//Drive::opcontrol(); 
 //	}  
 }
-

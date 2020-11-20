@@ -14,11 +14,14 @@ int backLeftPort = 2; //Variable with the back left motor port
 
 int imuPort=6;
 
+
 Motor FrontRight(frontRightPort, E_MOTOR_ENCODER_DEGREES); //Setting Up the Front Right Motor
 Motor FrontLeft(frontLeftPort, E_MOTOR_ENCODER_DEGREES);  //Setting Up the Front Left Motor
 Motor BackRight(backRightPort, E_MOTOR_ENCODER_DEGREES);  //Setting Up the Back Right Motor
 Motor BackLeft(backLeftPort, E_MOTOR_ENCODER_DEGREES); //Setting Up the Back Left Motor
 
+Motor leftIntake(5);
+Motor rightIntake(6);
 ADIEncoder Ltraking ('G', 'H', false);
 ADIEncoder Rtraking ('A', 'B', true);
 ADIEncoder Stracking('C', 'D', false);
@@ -29,7 +32,6 @@ Imu imu(imuPort);
 
 //Create a namespace to allow code to be used in other spot
 namespace Drive{
-
 //SetUping Variable for IMU loop  
 float ImuError;
 float ImuDerritive;
@@ -67,8 +69,8 @@ void IMUTurn(int targetDegree) {
 int LeftPos;
 int BackPos;
 int RightPos;
-float SmallDistance= 1.375/360;
-float BigDistance= 10/360;
+float SmallDistance= 360/9;
+float BigDistance= 360/9;
 
 int PrevLeft;
 int PrevBack;
@@ -203,9 +205,9 @@ float currentPostion;
       BackRight.move(-Power);
       XPrevError = XError;
  }
-float StraightKP=100;
-float StraightKI;
-float StraightKD;
+float StraightKP=.17;
+float StraightKI=.1;
+float StraightKD=.2;
 float StraightError;
 float StraightPrevError;
 float StraightDerritive;
@@ -224,42 +226,49 @@ bool StraightPIDRun = true;
 
 //Function for Straight PID
 void StraightPID(float inches) {
-  while (StraightPIDRun == true){
-  leftTracking = Ltraking.get_value();
-  RightTracking = Rtraking.get_value();
-  average = (leftTracking+RightTracking)/2;
+  Ltraking.reset(); 
+  leftIntake.move_velocity(-100);
+    rightIntake.move_velocity(-100);
+  Rtraking.reset();
+  while (StraightPIDRun == true){                    
+    leftTracking = Ltraking.get_value();
+    RightTracking = Rtraking.get_value();
+    average = (leftTracking+RightTracking)/2; 
 
-  distanceTravled = (SmallDistance/2)*average;
-  
-  StraightError = inches-distanceTravled;
+    leftIntake.move_velocity(-100);
+    rightIntake.move_velocity(-100);
+    float TargetDegrees = inches*40;
+    StraightError = TargetDegrees-average;
 
-  StraightDerritive = StraightPrevError-StraightError;
-  StraightPrevError = StraightError;
+    StraightDerritive = StraightPrevError-StraightError;
+    StraightPrevError = StraightError;
 
-  StraightP = StraightError*StraightKP;
-  StraightD = StraightDerritive*StraightKD;
+    StraightP = StraightError*StraightKP;
+    StraightD = StraightDerritive*StraightKD;
 
-  StraightPower = StraightP + StraightD;
-  if (StraightError > 1 || StraightError < -1 ){
-    FrontLeft.move_velocity(StraightPower);
-    FrontRight.move_velocity(-StraightPower);
-    BackLeft.move_velocity(StraightPower);
-    BackRight.move_velocity(-StraightPower);
-  }
+    StraightPower = StraightP + StraightD;
+    if (StraightError > 70 || StraightError < -70 ){
+      FrontLeft.move_velocity(StraightPower);
+      FrontRight.move_velocity(-StraightPower);
+      BackLeft.move_velocity(StraightPower);
+      BackRight.move_velocity(-StraightPower);
+    }
 
-  else if (StraightError < 1 || StraightError > -1){
-    FrontLeft.move_velocity(0);
-    FrontRight.move_velocity(0);
-    BackLeft.move_velocity(0);
-    BackRight.move_velocity(0);
-    StraightPIDRun = false;
-  }
+    else if (StraightError < 70  || StraightError > -70){
+      FrontLeft.move_velocity(0);
+      FrontRight.move_velocity(0);
+      BackLeft.move_velocity(0);
+      BackRight.move_velocity(0);
+      StraightPIDRun = false;
+       
+    }
   }
 }
-
-
+  void autonomous() {
+    
+  }
   void opcontrol() {
-    //Odemtry();
+    Odemtry();
 
     int power = master.get_analog(ANALOG_LEFT_Y);
 	    //Turning is set to the x axis of the right joystick
@@ -273,9 +282,9 @@ void StraightPID(float inches) {
     int rb = power - turn + strafe;
 
 
-    //FrontRight.move(-rf);
-    //FrontLeft.move(lf);
-    //BackRight.move(-rb);
-    //BackLeft.move(lb);
+    FrontRight.move(-rf);
+    FrontLeft.move(lf);
+    BackRight.move(-rb);
+    BackLeft.move(lb);
   }
 }
