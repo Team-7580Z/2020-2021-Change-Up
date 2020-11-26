@@ -1,14 +1,10 @@
 #ifndef _BALLSYSTEM_H_
 #define _BALLSYSTEM_H_
 
-namespace  BallSystem {
-void TurnOnIntake(int speed);
-void TurnOnRollerSystem(int sharedSpeed, int singleSpeed);
-void TurnBallSystemOn(int rollerSpeed, int speed);
-void TurnOffBallSystem();
+namespace BallSystem {
+    void setIntakeSpeed(int leftIntakeSpeed, int rightIntakeSpeed);
+    void setRollerSpeed(int singleSpeed, int sharedSpeed);
 
-
-
-void opcontrol();
+    void opcontrol();
 }
 #endif 

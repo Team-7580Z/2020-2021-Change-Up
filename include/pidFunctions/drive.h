@@ -4,9 +4,8 @@
 namespace Drive{
     
 
-    void Odemtry();
-    void StraightPID(float inches);
-    void opcontrol();
+   void Odemtry();
+
 }
 
 

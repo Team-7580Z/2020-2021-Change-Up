@@ -1,9 +1,6 @@
 #include "main.h"
-#include <iostream>
-#include<string>
-#include <cstdio>
-#include <ctime>
-using namespace std;
+
+using namespace pros;
 
 
 //IntializltionStep
@@ -20,8 +17,6 @@ Motor FrontLeft(frontLeftPort, E_MOTOR_ENCODER_DEGREES);  //Setting Up the Front
 Motor BackRight(backRightPort, E_MOTOR_ENCODER_DEGREES);  //Setting Up the Back Right Motor
 Motor BackLeft(backLeftPort, E_MOTOR_ENCODER_DEGREES); //Setting Up the Back Left Motor
 
-Motor leftIntake(5);
-Motor rightIntake(6);
 ADIEncoder Ltraking ('G', 'H', false);
 ADIEncoder Rtraking ('A', 'B', true);
 ADIEncoder Stracking('C', 'D', false);
@@ -32,259 +27,154 @@ Imu imu(imuPort);
 
 //Create a namespace to allow code to be used in other spot
 namespace Drive{
-//SetUping Variable for IMU loop  
-float ImuError;
-float ImuDerritive;
-float ImuIntergal;
-
-float ImuKP;
-float ImuKI;
-float ImuKD;
-
-float ImuP;
-float IMUI;
-float IMUD;
-
-float currentDegree;
-
-float ImuPrevError;
-bool targretReached = false;
-
-//Function for Turn PID with IMU
-void IMUTurn(int targetDegree) {
-  while(targretReached == false) {
-    currentDegree = imu.get_rotation();
-    ImuError =  targetDegree - currentDegree;
-
-    ImuDerritive = ImuError-ImuPrevError;
-
-    ImuP = ImuError * ImuKP;
-    IMUD = ImuDerritive * ImuKD;
-
-  }
-}
-//IMU PID done
-
-//Setting up the variable for Odemtry
-int LeftPos;
-int BackPos;
-int RightPos;
-float SmallDistance= 360/9;
-float BigDistance= 360/9;
-
-int PrevLeft;
-int PrevBack;
-int PrevRight;
-
-float deltaLeft;
-float deltaRight;
-float deltaBack;
-
-float totalDeltaDistR;
-float totalDeltaDistL;
-
-float currentAbsoluteOrriantion;
-float StratTheta=0;
-
-float LeftTrakingRadius=5.5;
-float RightTrakinRadius=5.5;
-
-float prevTheta;
-float ThetaDelta;
-
-float sTrakingRadius = 5.5;
-
-float deltaXLocal;
-float deltaYLocal;
-
-float deltaXGlobal;
-float deltaYGlobal;
-
-float XPostionGlobal;
-float YPostionGlobal;
-
-float averageThetaArk;
-//Varaibles intilzation for Odemtry Done
-
-//Inilzing Varibalbes and Constants for PID
-
-//Variables for PID set
-float XError;
-float XDerritive;
-float XPrevError;
-
-
-int target=0;
-
-//Constants for PID
-float XKP = 200;
-float XkD;
-
-//Back for Variables for PID
-float XP;
-float XD;
-
-//Will be used to exit the PID loop
-bool reached;
-float Power;
-float currentPostion;
-
-//Function for Odemtry
- void Odemtry() {
-   LeftPos = Ltraking.get_value();
-   RightPos = Rtraking.get_value();
-   BackPos = Stracking.get_value();
-
-   deltaLeft = (LeftPos-PrevLeft)*SmallDistance;
-   deltaRight = (RightPos-PrevRight)*SmallDistance;
-   deltaBack = (BackPos-PrevBack)*BigDistance;
-   PrevBack=BackPos;
-   PrevLeft=LeftPos;
-   PrevRight=RightPos;
-
-  totalDeltaDistL += deltaLeft;
-  totalDeltaDistR += deltaRight;
-
-  currentAbsoluteOrriantion = StratTheta - ( (totalDeltaDistL-totalDeltaDistR)/(LeftTrakingRadius+RightTrakinRadius));  //Radians
-
-  ThetaDelta = currentAbsoluteOrriantion - prevTheta;
-
-  prevTheta = currentAbsoluteOrriantion;
-
-  if (ThetaDelta == 0) {
-    deltaXLocal = deltaBack;
-    deltaYLocal = deltaRight;
-  }
-
-  else {
-    deltaXLocal = sin(ThetaDelta/2)*((deltaBack/ThetaDelta)+sTrakingRadius);
-    deltaYLocal = sin(ThetaDelta/2)*((deltaLeft/ThetaDelta)+LeftTrakingRadius);
-  }
-
-  averageThetaArk = currentAbsoluteOrriantion - (ThetaDelta/2);
-
-  deltaXGlobal = (deltaYLocal*cos(averageThetaArk))-(deltaXLocal*sin(averageThetaArk));
-   deltaYGlobal = (deltaYLocal * sin(averageThetaArk)) + (deltaXLocal * cos(averageThetaArk));
-
-   XPostionGlobal += deltaXGlobal;
-   YPostionGlobal += deltaYGlobal;
-
+  bool runOdemtry = true;
   
-  std::string X = std::to_string(XPostionGlobal);
-  std::string Y = std::to_string(YPostionGlobal);
-  lcd::initialize();
-  lcd::set_text(1,"Current Postion (" + X + ", "  + Y +")");
+  void Odemtry() {
+    lcd::initialize();
+    Ltraking.reset();
+    Rtraking.reset();
+    Stracking.reset();
 
-  if (FrontLeft.get_actual_velocity() > 0 && LeftPos == 0 ) {
-    lcd::clear_line(1);
-    lcd::set_text(1, "Odemtry is now inaccurate");
-  }
-  currentPostion = XPostionGlobal+YPostionGlobal;
-  std::string Reach = std::to_string(reached);
-  lcd::set_text(6, Reach);
-    XError = currentPostion - target;
-
-    std::string error =std::to_string(XError);
-    lcd::set_text(2, "error: "+ error);
-    XDerritive = XPrevError - XError;
-
-
-    XP = XError*XKP;
-    std::string p = std::to_string(XP);
-    lcd::set_text(3, p);
-    XD = XDerritive*XkD;
-
-    Power = XP + XD;
-
-    std::string power = std::to_string(Power);
-    lcd::set_text(4, "Power: " + power);
-  
-      FrontLeft.move(Power);
-      FrontRight.move(-Power);
-      BackLeft.move(Power);
-      BackRight.move(-Power);
-      XPrevError = XError;
- }
-float StraightKP=.17;
-float StraightKI=.1;
-float StraightKD=.2;
-float StraightError;
-float StraightPrevError;
-float StraightDerritive;
-float leftTracking;
-float RightTracking;
-
-float average;
-float distanceTravled;
-
-float StraightP;
-float StraightI;
-float StraightD;
-
-float StraightPower;
-bool StraightPIDRun = true;
-
-//Function for Straight PID
-void StraightPID(float inches) {
-  Ltraking.reset(); 
-  leftIntake.move_velocity(-100);
-    rightIntake.move_velocity(-100);
-  Rtraking.reset();
-  while (StraightPIDRun == true){                    
-    leftTracking = Ltraking.get_value();
-    RightTracking = Rtraking.get_value();
-    average = (leftTracking+RightTracking)/2; 
-
-    leftIntake.move_velocity(-100);
-    rightIntake.move_velocity(-100);
-    float TargetDegrees = inches*40;
-    StraightError = TargetDegrees-average;
-
-    StraightDerritive = StraightPrevError-StraightError;
-    StraightPrevError = StraightError;
-
-    StraightP = StraightError*StraightKP;
-    StraightD = StraightDerritive*StraightKD;
-
-    StraightPower = StraightP + StraightD;
-    if (StraightError > 70 || StraightError < -70 ){
-      FrontLeft.move_velocity(StraightPower);
-      FrontRight.move_velocity(-StraightPower);
-      BackLeft.move_velocity(StraightPower);
-      BackRight.move_velocity(-StraightPower);
-    }
-
-    else if (StraightError < 70  || StraightError > -70){
-      FrontLeft.move_velocity(0);
-      FrontRight.move_velocity(0);
-      BackLeft.move_velocity(0);
-      BackRight.move_velocity(0);
-      StraightPIDRun = false;
-       
-    }
-  }
-}
-  void autonomous() {
+    float Ldelta = 0;
+    float Rdelta = 0;
+    float Sdelta = 0;
     
+    float LRaw = 0;
+    float RRaw = 0;
+    float SRaw = 0;
+
+    float LDeltaIn = 0;
+    float RDeltaIn = 0;
+    float SDeltaIn = 0;
+
+    float pi = 3.14159;
+
+    float LeftRightmm= 220;
+
+    float LeftRightIN = LeftRightmm/25.4;
+
+    float Centermm = 120;
+    float Centerin = 120/25.4;
+    float leftRightDIamter = 2.75;
+    float backDiamter = 3.25;
+
+    float leftRightCin = leftRightDIamter* pi;
+    float backCin = backDiamter * pi;
+
+    float rad = 0;
+    float circ =0;
+    float absoluteOrientationRadian = 0;
+    
+    float ic = 0;
+    float ct = 0;
+
+    float localX;
+    float localY;
+
+    float absGlobalX;
+    float absGolbalY;
+    float absoluteOrientationDegrees;
+
+    float prevGlobalX;
+    float prevGlobalY;
+    lcd::clear();
+    float prevOrientationRad;
+    while (true) {
+      lcd::set_text(2, "by");
+      Ldelta = Ltraking.get_value() - LRaw;
+      Rdelta = Rtraking.get_value() - RRaw;
+      Sdelta = Stracking.get_value() - SRaw;
+
+      LDeltaIn = (Ldelta/360) * leftRightCin;
+      RDeltaIn = (Rdelta/360) * leftRightCin;
+      SDeltaIn = (Sdelta/360) * backCin;
+      
+      LRaw = Ltraking.get_value();
+      RRaw = Rtraking.get_value();
+      SRaw = Stracking.get_value();
+
+      absoluteOrientationRadian = (LDeltaIn-RDeltaIn)/LeftRightIN;
+
+       absoluteOrientationDegrees = (absoluteOrientationRadian*(180/pi));
+
+      float deltaA = absoluteOrientationRadian;
+      if (deltaA == 0) {
+        localX = SDeltaIn;
+        localY = RDeltaIn;
+      } else {
+        localX = (2*sin(deltaA/2)) * ((Sdelta/deltaA)+Centerin);
+        localY = (2*sin(deltaA/2)) * ((Rdelta/deltaA)+(LeftRightIN/2));
+      }
+
+      float localPolarAngle = 0;
+      float localPolarLength = 0;
+
+      if (localX == 0 && localY == 0) {
+        localPolarAngle = 0;
+        localPolarLength = 0;
+      } else {
+        localPolarAngle = atan2(localY, localX);
+        localPolarLength = sqrt(pow(localX, 2) + pow(localY, 2));
+      }
+
+      float gobalPolarLength  = localPolarLength;
+      float globalPolarAngle = localPolarAngle - prevOrientationRad - (deltaA/2);
+
+      float golbalX = gobalPolarLength*cos(globalPolarAngle);
+      float globalY = gobalPolarLength*sin(globalPolarAngle);
+
+      //Calculate Absolute Postions
+
+      absGlobalX = prevGlobalX + golbalX;
+      absGolbalY = prevGlobalY + globalY;
+
+      prevGlobalY = absGolbalY;
+      prevGlobalX = absGlobalX;
+      
+      prevOrientationRad = absoluteOrientationRadian;
+
+      printf("%.6f", absGolbalY);
+      
+    
+    
+    auto TurnSlide = [absoluteOrientationDegrees, absGlobalX, absGolbalY, absoluteOrientationRadian, pi](float endX, float endY, float EndRoatoin, float maxDriveValue, float maxTurnValue, float timeoutMsec, float DriveP, float DriveD, float TurnP, float TurnD){
+      float TurnError = (EndRoatoin-absoluteOrientationDegrees);
+      float driveError = sqrt(pow((endX - absGlobalX) ,2) + pow((endY - absGolbalY),2));
+      float deltaTurnError;
+      float deltaDriveError;
+
+      float prevTurnError = TurnError;
+      float prevDriveError = driveError;
+      while ( TurnError > -1 || TurnError < -1 || driveError < 1 || driveError > -1) {
+        TurnError = (EndRoatoin-absoluteOrientationDegrees);
+        driveError = sqrt(pow((endX - absGlobalX) ,2) + pow((endY - absGolbalY),2));
+
+        deltaTurnError = TurnError - prevTurnError;
+        deltaDriveError = driveError - prevDriveError;
+
+        float finalTurn = TurnError*TurnP+deltaTurnError*TurnD;
+        float finalDrive = driveError*DriveP+deltaDriveError*DriveD;
+
+        if (finalTurn > maxTurnValue) {
+          finalTurn = maxTurnValue;
+        }
+        if (finalDrive > maxDriveValue) {
+          finalDrive = maxDriveValue;
+        }
+        if (finalTurn < -maxTurnValue) {
+          finalTurn = -maxTurnValue;
+        }
+        if (finalDrive < -maxDriveValue) {
+          finalDrive = -maxDriveValue;
+        }
+        FrontLeft.move_velocity(finalDrive*(cos(absoluteOrientationRadian + atan2(endY- absGolbalY, endX - absGlobalX) - pi/4))) + finalTurn;
+        FrontRight.move_velocity(finalDrive*(cos(3*pi/4-atan2(endY- absGolbalY, endX - absGlobalX)-absoluteOrientationRadian))) + finalTurn;
+        BackRight.move_velocity(finalDrive*(cos(absoluteOrientationRadian + atan2(endY- absGolbalY, endX - absGlobalX) - pi/4))) - finalTurn;
+        BackLeft.move_velocity(finalDrive*(cos(3*pi/4-atan2(endY- absGolbalY, endX - absGlobalX)-absoluteOrientationRadian))) - finalTurn;
+      }
+    };
+
+    TurnSlide(.4,0, 4, 80, 50, 20, 60, 50, 60, 50);
   }
-  void opcontrol() {
-    Odemtry();
-
-    int power = master.get_analog(ANALOG_LEFT_Y);
-	    //Turning is set to the x axis of the right joystick
-	  int turn = master.get_analog(ANALOG_RIGHT_X);
-	   // Strafe is set to the x axis of the left joystick
-   	int strafe = master.get_analog(ANALOG_LEFT_X);
-	  // We set the power of the Left Front Motor to the postion of the varaible power postion + the turn postion + the strafe postion
-    int lf = power + turn - strafe;
-    int lb = power + turn + strafe;
-    int rf = power - turn - strafe;
-    int rb = power - turn + strafe;
-
-
-    FrontRight.move(-rf);
-    FrontLeft.move(lf);
-    BackRight.move(-rb);
-    BackLeft.move(lb);
-  }
+    }
 }
