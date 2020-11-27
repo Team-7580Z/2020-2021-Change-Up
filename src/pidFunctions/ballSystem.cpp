@@ -40,18 +40,50 @@ namespace ballSystem {
             SharedSetVelocity=SharedError*SharedKP+SharedDeltaError*SharedKD;
 
             SingleError=singleVelocity-SingleRoller.get_actual_velocity();
-            SinglePrevError = SingleError;
 
             SingleDeltaError = SingleError-SinglePrevError;
 
-            singleSetVelocity = SingleError*SingleKP+SinglePrevError*SingleKD;
+            SinglePrevError = SingleError;
+
+            singleSetVelocity = SingleError*SingleKP+SingleDeltaError*SingleKD;
 
             SharedRollers.move_velocity(SharedSetVelocity);
             SingleRoller.move_velocity(singleSetVelocity);
         }  
     }
 
-    void IntakeSpeed() {
+    void IntakeSpeed(int Speed) {
+        float LeftSpeed;
+        float RightSpeed;
+        float Average;
+
+        float Error;
+        float PrevError;
         
+        float DeltaError;
+
+        float kp;
+        float kd;
+
+        float Velocity;
+
+        while(true) {
+            LeftSpeed=LeftIntake.get_actual_velocity();
+            RightSpeed=RightIntake.get_actual_velocity();
+
+            Average = (LeftSpeed+RightSpeed)/2;
+
+            Error = Speed-Average;
+
+            DeltaError = Error-PrevError;
+
+            PrevError= Error;
+
+            Velocity = Error*kp+DeltaError*kd;
+
+            RightIntake.move_velocity(Velocity);
+            LeftIntake.move_velocity(Velocity);
+ 
+        }
     }
 }
