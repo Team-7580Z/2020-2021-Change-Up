@@ -9,10 +9,11 @@ pros::Controller master(CONTROLLER_MASTER);
 //Seting up the motors
 
 
-
+void autonomous() {
+	
+}
 void opcontrol() {
 
 	//Drive::StraightPID(24);
-
-	Drive::Odemtry();  
+	Drive::TurnSlide(1,1,0, 100, 150, 0, 80, 60, 70, 50);
 }

@@ -5,6 +5,7 @@ namespace Drive{
     
 
    void Odemtry();
+   void TurnSlide(float endX, float endY, float EndRoatoin, float maxDriveValue, float maxTurnValue, float timeoutMsec, float DriveP, float DriveD, float TurnP, float TurnD);
 
 }
 
