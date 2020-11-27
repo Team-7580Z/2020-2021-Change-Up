@@ -83,7 +83,28 @@ namespace ballSystem {
 
             RightIntake.move_velocity(Velocity);
             LeftIntake.move_velocity(Velocity);
- 
         }
+    }
+    void TurnAllOn() {
+        spinRollers(600, 600);
+        IntakeSpeed(200);
+    }
+    void TurnAllOf() {
+        spinRollers(0, 0);
+        IntakeSpeed(0);
+    }
+    void EjectBall() {
+        spinRollers(600, -600);
+    }
+    void OnlyRoller() {
+        spinRollers(600, 600);
+        IntakeSpeed(0);
+    }
+    void OnlyIntake() {
+        IntakeSpeed(200);
+        spinRollers(0, 0);
+    }
+    void KeepBall() {
+        spinRollers(600, 600);
     }
 }
