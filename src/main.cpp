@@ -13,7 +13,6 @@ void autonomous() {
 	
 }
 void opcontrol() {
-
-	//Drive::StraightPID(24);
-	Drive::TurnSlide(1,1,0, 100, 150, 0, 80, 60, 70, 50);
+	Drive::TurnSlide(10,10,0, 50, 0, 0, 2, 2, 0, 0);
+	Drive::TurnSlide(0,0,90, 0, 100, 0, 100, 10, 5, 5);
 }
