@@ -1,0 +1,10 @@
+1. drive forard 12 inches as rotationg 120 degrees
+    a. as this happens deploy intake and turn on shared roller to open hood
+2. drive 24 degrees and make sure angle is correct
+3. Shoot ball wait .5 seconds with intake on
+4. Drive Back as we turn 180 degrees with intake on to retive red ball
+5. Move sideways two feet and forward two feet with a angle of 45 and retrive red ball
+6. score in 2n goal
+7. drive 48 inches back while rotating 180 degrees and retrive red ball 
+8. drive to center goal and de score ball
+9.turn 45 degrees

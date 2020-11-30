@@ -10,9 +10,8 @@ pros::Controller master(CONTROLLER_MASTER);
 
 
 void autonomous() {
-	
+	Drive::TurnSlide(0,12,0, 100, 0, 0, 5, 5, 0, 0);
+
 }
 void opcontrol() {
-	Drive::TurnSlide(10,10,0, 50, 0, 0, 2, 2, 0, 0);
-	Drive::TurnSlide(0,0,90, 0, 100, 0, 100, 10, 5, 5);
 }

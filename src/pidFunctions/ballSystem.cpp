@@ -2,18 +2,21 @@
 using namespace std;
 
 namespace ballSystem {
-    static int sharedRollerPort = 8;
-    static int singleRollerPort = 3;
+     int sharedRollerPort = 8;
+     int singleRollerPort = 3;
     
-    static int leftIntakePort = 5;
-    static int rightIntakePort = 6;
+     int leftIntakePort = 5;
+     int rightIntakePort = 6;
+
+     int opticalPort = 7;
 
     Motor SharedRollers(sharedRollerPort, E_MOTOR_GEARSET_36 ,false);
     Motor SingleRoller(singleRollerPort, E_MOTOR_GEARSET_36, true);
 
     Motor LeftIntake(leftIntakePort, E_MOTOR_GEARSET_18, false);
     Motor RightIntake(rightIntakePort, E_MOTOR_GEARSET_18, true);
-
+    
+    Optical optical(opticalPort);
     
     void spinRollers(int sharedVelocity, int singleVelocity) { //A function invovling a PD loop for the roller Speed
         float SharedError=sharedVelocity-SharedRollers.get_actual_velocity();
@@ -110,6 +113,32 @@ namespace ballSystem {
 
             void KeepBall() { //Will keep the Ball
                 spinRollers(600, 600);
+            }
+            int numDeScored;
+            int StartTime;
+            void Descore(int numberOfBalls, float maxTime) {
+                numDeScored = 0; 
+                StartTime = millis();
+                while (numDeScored < numberOfBalls) {
+                    optical.set_led_pwm(100);
+                    OnlyIntake();
+                    if (optical.get_hue() > 70 && numDeScored == numberOfBalls-1) {
+                        numDeScored += 1;
+                        EjectBall();
+                        IntakeSpeed(0);
+                        delay(3);
+                        TurnAllOf();
+                    }
+                    else if (optical.get_hue() > 70 && numDeScored < numberOfBalls-1) {
+                        numDeScored += 1;
+                        EjectBall();
+                        IntakeSpeed(100);
+                        delay(3);
+                    }
+                    if (millis()-StartTime > 2000) {
+                        numDeScored += numberOfBalls;
+                    }
+                }
             }
             void opcontrol() {
             }
