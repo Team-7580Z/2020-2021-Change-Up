@@ -140,6 +140,26 @@ namespace ballSystem {
                     }
                 }
             }
-            void opcontrol() {
+            bool allRunning=false;
+            bool allOff=false;
+            bool onlyRollers=false;
+            bool onlyIntake=false;
+            bool ejectBall=false;
+
+            void drive() {
+                while(true) {
+                    if (master.get_digital(DIGITAL_R1)) {
+                        TurnAllOn();
+                    }
+                    else if (master.get_digital(DIGITAL_R2)) {
+                        TurnAllOf();
+                    }
+                    else if (master.get_digital(DIGITAL_L1)) {
+                        OnlyRoller();
+                    }
+                    else if (master.get_digital(DIGITAL_L2)) {
+                        OnlyIntake();
+                    }
+                }
             }
     }

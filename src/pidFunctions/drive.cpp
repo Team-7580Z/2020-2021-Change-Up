@@ -14,12 +14,12 @@ int imuPort=6;
 
 Motor FrontRight(frontRightPort, true); //Setting Up the Front Right Motor
 Motor FrontLeft(frontLeftPort);  //Setting Up the Front Left Motor
-Motor BackRight(backRightPort);  //Setting Up the Back Right Motor
+Motor BackRight(backRightPort, true);  //Setting Up the Back Right Motor
 Motor BackLeft(backLeftPort); //Setting Up the Back Left Motor
 
 ADIEncoder Ltraking ('G', 'H', false);
 ADIEncoder Rtraking ('A', 'B', true);
-ADIEncoder Stracking('C', 'D', true);
+ADIEncoder Stracking('C', 'D', false);
 
 
 Imu imu(imuPort);
@@ -46,7 +46,7 @@ namespace Drive{
 
     float LeftRightmm= 257;
 
-    float LeftRightIN = LeftRightmm/25.4;
+    float LeftRightIN = 10;
 
     float Centermm = 152;
     float Centerin = 152/25.4;
@@ -109,11 +109,16 @@ namespace Drive{
       RRaw = RPos;
       SRaw = SPos;
 
-      absoluteOrientationRadian = (Ltraking.get_value()-Rtraking.get_value())/LeftRightIN;
+      absoluteOrientationRadian = (LPos-RPos)/432;
 
        absoluteOrientationDegrees = (absoluteOrientationRadian*(180/pi));
-
-      float deltaA = (deltaDistL-DeltaDistR)/LeftRightIN;
+      std::string Angle = std::to_string(absoluteOrientationDegrees);
+      lcd::initialize();
+      lcd::set_text(1, Angle);
+ 
+      float deltaA = absoluteOrientationRadian;
+     
+     
       if (deltaA == 0) {
         localX = SDeltaDist;
         localY = RDeltaDist;
@@ -168,7 +173,7 @@ namespace Drive{
         float prevTurnError = TurnError;
         float prevDriveError = driveError;
 
-        while ( TurnError > 90 || TurnError < -90 || driveError > 4 || driveError < -4) {
+        while ( TurnError > 20 || TurnError < -20 || driveError > 1 || driveError < -1) {
           TurnError = (EndRoatoin-absoluteOrientationDegrees);
           driveError = sqrt(pow((endX - absGlobalX) ,2) + pow((endY - absGolbalY),2));
 
@@ -201,5 +206,12 @@ namespace Drive{
         BackLeft.move_velocity(0);
         FrontRight.move_velocity(0);
         BackRight.move_velocity(0);
+      }
+      void dri() {
+        int power = master.get_analog(ANALOG_LEFT_Y);
+
+        int turn = master.get_analog(ANALOG_RIGHT_X);
+
+
       }
 }
