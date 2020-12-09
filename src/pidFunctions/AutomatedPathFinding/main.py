@@ -1,7 +1,7 @@
 import numpy as np
 
 FrontLeftCorridnate = np.array(-69.96, 0)
-
+print(FrontLeftCorridnate[0])
 ceneredScored = False
 centerLeftScored = False
 centerRightScored = False
@@ -20,20 +20,23 @@ BallInFrontRightGoal = 0
 BallShotInFrontLeft = True
 BallInFrontLeftGoal = 0
 def IsFrontRightScored():
-    if BallShotInFrontRight == True:
-        BallInFrontRightGoal += 1
+    if BallShotInFrontRightGoal == True:
+        BallInFrontRightGoal =+ 1
+
     elif BallShotInFrontRight == False:
-        BallInFrontRight = BallInFrontRight
+        BallShotInFrontRight = BallShotInFrontRight
+
     else:
         BallInFrontRightGoal = BallInFrontRightGoal
     if BallInFrontRight > 0 :
         FrontRightScored = True
     elif BallInFrontRight == 0:
         FrontRightScored == 0
-  
+    
+    return BallInFrontRightGoal
 def IsFrontLeftScored():
     if BallShotInFrontLeft == True:
-        BallInFrontLeftGoal += 1
+        BallInFrontLeftGoal =+ 1
     elif BallShotInFrontLeft == False:
         BallInFrontLeftGoal == BallInFrontLeftGoal
     else:
@@ -45,17 +48,6 @@ def IsFrontLeftScored():
     else:
         FrontLeftScored = False
     
-def IsFrontCenterScored():
-
-def IsBackLeftScored():
-
-def IsBackRightScored():
-
-def IsBackCenterScored():
-
-def IsCenterLeftScored():
-
-def IsCenterRightScored():
+    return BallInFrontLeftGoal
 
 
-def main():

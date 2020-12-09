@@ -29,37 +29,50 @@ Imu imu(imuPort);
 //Create a namespace to allow code to be used in other spot
 namespace Drive{
   bool runOdemtry = true;
-  
+    //We intialze the deltas for the left, right, and back endoers.
     float Ldelta = 0;
     float Rdelta = 0;
     float Sdelta = 0;
-    
+
+    //We intilize the variable for the prevous value of left delta, right delta, and back delta
     float LRaw = 0;
     float RRaw = 0;
     float SRaw = 0;
 
+    //Intilize the variable that will be used to to caluclate the distance travled
     float LDeltaDist = 0;
     float RDeltaDist = 0;
     float SDeltaDist = 0;
 
+    //Just to make multypiling by pi easier
     float pi = 3.14159;
 
+    //Distance between the left and right encoder in millimeters
     float LeftRightmm= 257;
 
+    //Distance between the left and right encoder in inches
     float LeftRightIN = 10;
 
+    //Millimeters between the back wheel and the tracking center in millimeters
     float Centermm = 152;
+    //Distance between the the back wheel and the tracking center in inches
     float Centerin = 152/25.4;
+
+    //The diamter of the wheels used to make the odemtry tracking units for the jelft and the right
     float leftRightDIamter = 2.75;
     float backDiamter = 3.25;
 
-    
+    //The cicmfurance of the wheels used in the left right tracking units
     float leftRightCin = leftRightDIamter* pi;
+    //The cicmfurance of the back wheel
     float backCin = backDiamter * pi;
 
+    //We calculate how far a the Left Wheel would move when the Left Enocder rotates 1 degree
     float LWheelDistance = leftRightCin/360;
+    //Caluclate how far the back wheel would move when the encoder roates 1 degree
     float SWheelDistance = backCin/ 360;
 
+    //We intilize some variables that will be used in the code
     float rad = 0;
     float circ =0;
     float absoluteOrientationRadian = 0;
