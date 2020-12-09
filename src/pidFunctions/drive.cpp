@@ -100,11 +100,13 @@ namespace Drive{
 
     float golbalY;
     float globalX;
+  //Function that will run in the background to find current postion
   void postion(void* param) {
-    lcd::initialize();
+    lcd::initialize(); //We inilize the brain screen
 
-
+    //This loop is needed to make the the the thread always run in the background 
     while (true) {
+      
       LPos = Ltraking.get_value();
       SPos = Stracking.get_value();
       RPos = Rtraking.get_value();
