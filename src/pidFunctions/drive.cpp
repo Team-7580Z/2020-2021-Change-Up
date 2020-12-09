@@ -87,7 +87,7 @@ namespace Drive{
     float absGlobalX;
     float absGolbalY;
     float absoluteOrientationDegrees;
-
+    //Variables for the positon
     float prevGlobalX;
     float prevGlobalY;
     float prevOrientationRad;
