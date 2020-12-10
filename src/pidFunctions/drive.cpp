@@ -107,19 +107,21 @@ namespace Drive{
     //This loop is needed to make the the the thread always run in the background 
     while (true) {
       
-      LPos = Ltraking.get_value();
-      SPos = Stracking.get_value();
-      RPos = Rtraking.get_value();
+      LPos = Ltraking.get_value();//We get the value of the left encoder
+      SPos = Stracking.get_value();//We get the value of the back encoder
+      RPos = Rtraking.get_value();//We get the value of the right encoder
 
 
-      Ldelta = LPos - LRaw;
-      Rdelta = RPos- RRaw;
-      Sdelta = SPos - SRaw;
+      Ldelta = LPos - LRaw; //We caluclate the Left Delta by substracting the current left encoder by the the previous encoder postion
+      Rdelta = RPos- RRaw; //We caluclate the Right Delta by substracting the current right enocder postion by the previous encoder postion
+      Sdelta = SPos - SRaw; //We caluclate the Back Delta by substracting the current back encoder postion by the prevous encoder postion
 
-      LDeltaDist = Ldelta*LWheelDistance;
+      //The total change in distance is caluclated by multiplying the deltas by the constant lwheeldistance we set up earlier 
+      LDeltaDist = Ldelta*LWheelDistance; 
       RDeltaDist = Rdelta* LWheelDistance;
       SDeltaDist = Sdelta*SWheelDistance;
       
+      //We set the previous encocer value to the current encoder value
       LRaw = LPos;
       RRaw = RPos;
       SRaw = SPos;

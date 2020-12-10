@@ -1,53 +1,24 @@
 import numpy as np
 
-FrontLeftCorridnate = np.array(-69.96, 0)
-print(FrontLeftCorridnate[0])
-ceneredScored = False
-centerLeftScored = False
-centerRightScored = False
-
-FrontRightScored = False
-FrontCenterScored = False
-FrontLeftScored = False
-
-BackRight = False
-BackCenter = False
-BackLeft = False
-
-BallShotInFrontRight = True
-BallInFrontRightGoal = 0
-
-BallShotInFrontLeft = True
-BallInFrontLeftGoal = 0
-def IsFrontRightScored():
-    if BallShotInFrontRightGoal == True:
-        BallInFrontRightGoal =+ 1
-
-    elif BallShotInFrontRight == False:
-        BallShotInFrontRight = BallShotInFrontRight
-
+rows = 0
+def score(FrontLeftGoal, FrontRightGoal,FrontCenterGoal, CenterGoal, CenterRightGoal, CenterLeftGoal, BackRightGoal, BackLeftGoal, BackCenterGoal, OurBallsInFrontLeftGoal, OurBallsInFrontCenterGoal, OurBallsInFrontRightGoal, OurBallsInBackLeftGoal, OUrBallsInBackRightGoal, OUrBallsInBackCenterGoal, OurBallsinCenterRightGoal, OurBallsInCenterGoal, OurBallsIncenterLeftGoal, BallsDesocredinFrontLeft, BallsDescoredInFrontCenter, BallsDescoredInFrontRight, BallsDescoredInCenterLeft, BallsDescoredInCenter, BallsDescoredInCenterRight, BallsDescoredInBackLeft, BallsDescoredInBackCenter, BallsDescoredInBackRight):
+    if (FrontLeftGoal==True and FrontRightGoal==True and FrontCenterGoal==True):
+        rows = rows + 1
+    if (CenterGoal==True and CenterLeftGoal==True and CenterRightGoal==True):
+        rows += 1
+    if (BackCenterGoal==True and BackLeftGoal==True and BackRightGoal==True):
+        rows += 1
+    if (CenterGoal==True):
+        if(FrontLeftGoal==True and BackRightGoal==True):
+            rows += 1
+        if(FrontRightGoal==True and BackLeftGoal==True):
+            rows += 1
+    if(FrontLeftGoal==True and CenterLeftGoal==True and BackLeftGoal==True):
+        rows += 1
+    if(FrontCenterGoal==True and CenterGoal==True and BackCenterGoal==True):
+        rows += 1
+    if(FrontRightGoal==True and CenterRightGoal==True and BackRightGoal==True):
+        rows += 1
     else:
-        BallInFrontRightGoal = BallInFrontRightGoal
-    if BallInFrontRight > 0 :
-        FrontRightScored = True
-    elif BallInFrontRight == 0:
-        FrontRightScored == 0
+        rows = rows
     
-    return BallInFrontRightGoal
-def IsFrontLeftScored():
-    if BallShotInFrontLeft == True:
-        BallInFrontLeftGoal =+ 1
-    elif BallShotInFrontLeft == False:
-        BallInFrontLeftGoal == BallInFrontLeftGoal
-    else:
-        BallInFrontLeftGoal == BallInFrontLeftGoal
-    if BallInFrontLeftGoal > 0:
-        FrontLeftScored = True
-    elif BallInFrontLeftGoal == 0:
-        FrontLeftScored = False
-    else:
-        FrontLeftScored = False
-    
-    return BallInFrontLeftGoal
-
-
